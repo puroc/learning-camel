@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="linkedBlockingQueue" class="java.util.concurrent.LinkedBlockingQueue">
+        <constructor-arg index="0" value="10000"/>
+    </bean>
+
+    <bean id="sedaQueue" class="java.util.concurrent.LinkedBlockingQueue">
+        <constructor-arg index="0" value="10000"/>
+    </bean>
+
+    <bean id="threadPoolRejectedPolicy" class="org.apache.camel.ThreadPoolRejectedPolicy" factory-method="valueOf">
+        <constructor-arg value="Abort"/>
+    </bean>
+
+    <bean id="rejectableThreadPoolExecutor" class="org.apache.camel.util.concurrent.RejectableThreadPoolExecutor">
+        <constructor-arg index="0" value="20"/>
+        <constructor-arg index="1" value="40"/>
+        <constructor-arg index="2" value="5"/>
+        <constructor-arg index="3">
+            <bean class="java.util.concurrent.TimeUnit" factory-method="valueOf">
+                <constructor-arg value="SECONDS"/>
+            </bean>
+        </constructor-arg>
+        <constructor-arg index="4" ref="linkedBlockingQueue"/>
+        <constructor-arg index="5">
+            <bean factory-bean="threadPoolRejectedPolicy" factory-method="asRejectedExecutionHandler"/>
+        </constructor-arg>
+    </bean>
+
+    <bean id="redeliveryPolicy" class="org.apache.camel.processor.RedeliveryPolicy">
+        <!--<property name="logRetryAttempted" value="false"></property>-->
+        <!--<property name="logStackTrace" value="false"></property>-->
+        <!--<property name="logExhausted" value="false"></property>-->
+        <property name="maximumRedeliveries" value="0"></property>
+    </bean>
+
+    <bean id="exceptionProcessor" class="com.example.netty.gateway.processor.ExceptionProcessor"></bean>
+
+    <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
+        <errorHandler id="errorHandler" type="DefaultErrorHandler"
+                      redeliveryPolicyRef="redeliveryPolicy"></errorHandler>
+        <onException redeliveryPolicyRef="redeliveryPolicy">
+            <exception>java.lang.Throwable</exception>
+            <handled>
+                <constant>true</constant>
+            </handled>
+            <process ref="exceptionProcessor"></process>
+        </onException>
+        <route>
+            <from uri="netty4:tcp://0.0.0.0:{{netty.port}}?sync=false&amp;reuseAddress=true&amp;serverInitializerFactory=#serverPipelineFactory"/>
+            <threads executorServiceRef="rejectableThreadPoolExecutor" callerRunsWhenRejected="false">
+                <process ref="myProcessor"/>
+            </threads>
+        </route>
+        <!--<route>-->
+        <!--<from uri="servlet://notify?servletName=camelServlet"/>-->
+        <!--<threads executorServiceRef="rejectableThreadPoolExecutor" callerRunsWhenRejected="false">-->
+        <!--<process ref="myProcessor"/>-->
+        <!--</threads>-->
+        <!--</route>-->
+        <route>
+            <from uri="servlet://notify?servletName=camelServlet"/>
+            <log message="111 ${body},exchangeId:${exchangeId}"></log>
+            <convertBodyTo charset="UTF-8" type="String" />
+            <to uri="seda:queue?concurrentConsumers=5&amp;waitForTaskToComplete=Never&amp;queue=sedaQueue&amp;purgeWhenStopping=true" />
+            <!--<wireTap uri="direct:tap" executorServiceRef="rejectableThreadPoolExecutor"></wireTap>-->
+
+        </route>
+
+        <route>
+            <!--<from uri="direct:tap"/>-->
+            <from uri="seda:queue?concurrentConsumers=5&amp;waitForTaskToComplete=Never&amp;queue=sedaQueue&amp;purgeWhenStopping=true"/>
+            <log message="222 ${body} ,exchangeId:${exchangeId}"></log>
+            <process ref="myProcessor"/>
+        </route>
+
+    </camelContext>
+
+    <bean id="myProcessor" class="com.example.netty.gateway.processor.MyProcessor"></bean>
+
+</beans>
