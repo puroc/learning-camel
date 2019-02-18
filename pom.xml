@@ -11,6 +11,7 @@
     <modules>
         <module>netty-performance-test</module>
         <module>netty-performance-test</module>
+        <module>camel-example</module>
     </modules>
 
     <properties>

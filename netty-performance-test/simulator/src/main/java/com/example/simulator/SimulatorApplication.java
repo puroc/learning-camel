@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class SimulatorApplication {
 
     public static void main(String[] args) {
-//        Counter.getInstance().start();
+        Counter.getInstance().start();
         for (int i = 0; i < args.length; i++) {
             if ("threadNum".equalsIgnoreCase(args[i])){
                 Config.getInstance().setThreadNum(Integer.parseInt(args[i+1]));

@@ -12,9 +12,9 @@ public class ExceptionProcessor implements AsyncProcessor {
 
     @Override
     public boolean process(Exchange exchange, AsyncCallback callback) {
-        exchange.getProperty("CamelExceptionCaught");
-        Throwable exception = (Throwable)exchange.getProperty("CamelExceptionCaught", Throwable.class);
-        log.error("get a exception when process message whose id:"+exchange.getIn().getMessageId(),exception);
+//        exchange.getProperty("CamelExceptionCaught");
+//        Throwable exception = (Throwable)exchange.getProperty("CamelExceptionCaught", Throwable.class);
+//        log.error("get a exception when process message whose id:"+exchange.getIn().getMessageId(),exception);
         callback.done(false);
         return false;
     }

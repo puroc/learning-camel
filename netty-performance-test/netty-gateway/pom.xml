@@ -72,6 +72,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>io.hawt</groupId>
+            <artifactId>hawtio-embedded</artifactId>
+            <version>2.5.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -83,7 +89,7 @@
                 <configuration>
                     <executable>java</executable>
                     <arguments>
-                        <argument>-javaagent:lib/jolokia-jvm-1.6.0-agent.jar=discoveryEnabled=false</argument>
+                        <argument>-javaagent:lib/jolokia-jvm-1.6.0-agent.jar=discoveryEnabled=true,port=7777,host=0.0.0.0</argument>
                         <argument>-classpath</argument>
                         <classpath/>
                         <argument>com.example.netty.gateway.GatewayApplication</argument>

@@ -17,10 +17,7 @@
 package com.example.netty.gateway.route;
 
 import com.example.netty.gateway.Counter;
-import org.apache.camel.AsyncCallback;
-import org.apache.camel.AsyncProcessor;
-import org.apache.camel.Exchange;
-import org.apache.camel.ThreadPoolRejectedPolicy;
+import org.apache.camel.*;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.util.concurrent.RejectableThreadPoolExecutor;
 
@@ -29,33 +26,23 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.TimeUnit;
 
-/**
- * A simple Camel route that triggers from a timer and calls a bean and prints to system out.
- * <p/>
- * Use <tt>@Component</tt> to make Camel auto detect this route when starting.
- */
 //@Component
 public class JavaRouter extends RouteBuilder {
 
     private ExecutorService executorService = createTestExecutorService(ThreadPoolRejectedPolicy.Abort.asRejectedExecutionHandler());
 
-//    private ExecutorService createTestExecutorService(final RejectedExecutionHandler rejectedExecutionHandler) {
-//        return new RejectableThreadPoolExecutor(20, 40, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(10000), rejectedExecutionHandler);
-//    }
-
     private ExecutorService createTestExecutorService(final RejectedExecutionHandler rejectedExecutionHandler) {
-        return new RejectableThreadPoolExecutor(1, 1, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(1), rejectedExecutionHandler);
+        return new RejectableThreadPoolExecutor(20, 40, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(10000), rejectedExecutionHandler);
     }
+
+//    private ExecutorService createTestExecutorService(final RejectedExecutionHandler rejectedExecutionHandler) {
+//        return new RejectableThreadPoolExecutor(1, 1, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(1), rejectedExecutionHandler);
+//    }
 
     @Override
     public void configure() throws Exception {
 
-//        this.getContext().setMessageHistory(false);
-
-//        errorHandler(new NoErrorHandlerBuilder());
-
-//        errorHandler(defaultErrorHandler().logRetryAttempted(false).logStackTrace(false).logExhausted(false));
-        errorHandler(defaultErrorHandler());
+        errorHandler(defaultErrorHandler().logRetryAttempted(false).logStackTrace(false).logExhausted(false));
 
         onException(Throwable.class).handled(true).maximumRedeliveries(0).process(new AsyncProcessor() {
             @Override
@@ -114,7 +101,6 @@ public class JavaRouter extends RouteBuilder {
                              }
                          }
                 );
-
     }
 
 }

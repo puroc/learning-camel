@@ -20,7 +20,7 @@ public class GatewayApplication {
         servletRegistrationBean.setServlet(camelHttpTransportServlet);
         servletRegistrationBean.setName("camelServlet");
         servletRegistrationBean.addUrlMappings("/camel/*");
-        servletRegistrationBean.addInitParameter("async","true");
+        servletRegistrationBean.addInitParameter("async", "true");
         servletRegistrationBean.setAsyncSupported(true);
         return servletRegistrationBean;
     }
@@ -30,6 +30,24 @@ public class GatewayApplication {
 //        ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED);
 //        ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.PARANOID);
 //        System.setProperty("io.netty.allocator.maxCachedBufferCapacity", "1");
+
+
+//        System.setProperty("hawtio.authenticationEnabled", "false");
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                Main main = new Main();
+//                main.setPort(5555);
+//                main.setWar("/Users/puroc/git/learning-camel/netty-performance-test/netty-gateway/lib/hawtio-default-2.5.0.war");
+//                try {
+//                    main.run();
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }).start();
+//
+
         SpringApplication.run(GatewayApplication.class, args);
     }
 

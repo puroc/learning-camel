@@ -53,34 +53,14 @@
         </onException>
         <route>
             <from uri="netty4:tcp://0.0.0.0:{{netty.port}}?sync=false&amp;reuseAddress=true&amp;serverInitializerFactory=#serverPipelineFactory"/>
+            <process ref="countProcessor"/>
             <threads executorServiceRef="rejectableThreadPoolExecutor" callerRunsWhenRejected="false">
-                <process ref="myProcessor"/>
+                <process ref="sleepProcessor"/>
             </threads>
         </route>
-        <!--<route>-->
-        <!--<from uri="servlet://notify?servletName=camelServlet"/>-->
-        <!--<threads executorServiceRef="rejectableThreadPoolExecutor" callerRunsWhenRejected="false">-->
-        <!--<process ref="myProcessor"/>-->
-        <!--</threads>-->
-        <!--</route>-->
-        <route>
-            <from uri="servlet://notify?servletName=camelServlet"/>
-            <log message="111 ${body},exchangeId:${exchangeId}"></log>
-            <convertBodyTo charset="UTF-8" type="String" />
-            <to uri="seda:queue?concurrentConsumers=5&amp;waitForTaskToComplete=Never&amp;queue=sedaQueue&amp;purgeWhenStopping=true" />
-            <!--<wireTap uri="direct:tap" executorServiceRef="rejectableThreadPoolExecutor"></wireTap>-->
-
-        </route>
-
-        <route>
-            <!--<from uri="direct:tap"/>-->
-            <from uri="seda:queue?concurrentConsumers=5&amp;waitForTaskToComplete=Never&amp;queue=sedaQueue&amp;purgeWhenStopping=true"/>
-            <log message="222 ${body} ,exchangeId:${exchangeId}"></log>
-            <process ref="myProcessor"/>
-        </route>
-
     </camelContext>
 
-    <bean id="myProcessor" class="com.example.netty.gateway.processor.MyProcessor"></bean>
+    <bean id="sleepProcessor" class="com.example.netty.gateway.processor.SleepProcessor"></bean>
+    <bean id="countProcessor" class="com.example.netty.gateway.processor.CountProcessor"></bean>
 
 </beans>
